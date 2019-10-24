@@ -1,0 +1,129 @@
+diff -Naurp network/config.json RefSeq84_Genus/config.json
+--- network/config.json	2018-06-01 15:48:56.892148023 +0200
++++ RefSeq84_Genus/config.json	2018-06-01 15:46:32.061023560 +0200
+@@ -3,32 +3,35 @@
+   "version": "1.0",
+   "data": "data.json",
+   "logo": {
+-    "file": "",
+-    "link": "",
+-    "text": ""
++    "file": "../logo.png",
++    "link": "https://castillo.dicom.unican.es/Intergenomics",
++    "text": "Intergenomics Group"
+   },
+   "text": {
+-    "more": "",
+-    "intro": "",
+-    "title": ""
++    "more": "Edges are determined by ANI values when the matching windows overlap, at least, 50% of the smaller plasmid.",
++    "intro": "ANI network of RefSeq84 plasmid dataset colored by genus of the host",
++    "title": "Plasmids by Genus"
+   },
+   "legend": {
+-    "edgeLabel": "",
+-    "colorLabel": "",
+-    "nodeLabel": ""
++    "edgeLabel": "Similarity on >50%",
++    "colorLabel": "Genus",
++    "nodeLabel": "Plasmids"
+   },
+   "features": {
+     "search": true,
+-    "groupSelectorAttribute": false,
++    "groupSelectorAttribute": "taxgenus",
+     "hoverBehavior": "default"
+   },
++  "search":{
++    "fulltext": true
++  },
+   "informationPanel": {
+     "groupByEdgeDirection": false,
+     "imageAttribute": false
+   },
+   "sigma": {
+     "drawingProperties": {
+-      "defaultEdgeType": "curve",
++      "defaultEdgeType": "line",
+       "defaultHoverLabelBGColor": "#002147",
+       "defaultLabelBGColor": "#ddd",
+       "activeFontStyle": "bold",
+@@ -50,4 +53,4 @@
+       "minRatio": 0.75
+     }
+   }
+-}
+\ No hay ningún carácter de nueva línea al final del archivo
++}
+diff -Naurp network/index.html RefSeq84_Genus/index.html
+--- network/index.html	2018-06-01 15:48:56.892148023 +0200
++++ RefSeq84_Genus/index.html	2018-06-01 15:49:57.559778129 +0200
+@@ -2,7 +2,7 @@
+ <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en" xmlns:og="http://opengraphprotocol.org/schema/" xmlns:fb="http://www.facebook.com/2008/fbml" itemscope itemtype="http://schema.org/Map">
+ 
+ <head>
+-<title>OII Network Visualisation Example</title>
++<title>RefSeq84 Plasmids by Genus</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,user-scalable=no" />
+@@ -54,7 +54,7 @@
+     <form>
+       <div id="search" class="cf"><h2>Search:</h2>
+         <input type="text" name="search" value="Search by name" class="empty"/><div class="state"></div>
+-        <div class="results"></div>
++        <div id="list_results" class="results" style="overflow-y: auto"></div>
+       </div>
+       <div class="cf" id="attributeselect"><h2>Group Selector:</h2>
+         <div class="select">Select Group</div>
+diff -Naurp network/js/main.js RefSeq84_Genus/js/main.js
+--- network/js/main.js	2018-06-01 15:48:56.892148023 +0200
++++ RefSeq84_Genus/js/main.js	2018-06-01 15:46:32.061023560 +0200
+@@ -372,15 +372,32 @@ function Search(a) {
+         if (2 >= a.length) this.results.html("<i>You must search for a name with a minimum of 3 letters.</i>");
+         else {
+             sigInst.iterNodes(function (a) {
+-                g.test(a.label.toLowerCase()) && c.push({
+-                    id: a.id,
+-                    name: a.label
+-                })
++                if (g.test(a.label.toLowerCase())) {
++                    c.push({
++                            id: a.id,
++                            name: a.label
++                    });
++                } else if (config["search"] && config["search"]["fulltext"]) { //Check attributes for this node if fulltext is on
++                    for (attr in a["attr"]["attributes"]) {
++                        if (g.test((""+a["attr"]["attributes"][attr]).toLowerCase())) {
++                            c.push({
++                                    id: a.id,
++                                    name: a.label
++                            });
++                            break;//Matched not need to check further
++                        }
++                    }
++                }
+             });
+             c.length ? (b = !0, nodeActive(c[0].id)) : b = showCluster(a);
+             a = ["<b>Search Results: </b>"];
+             if (1 < c.length) for (var d = 0, h = c.length; d < h; d++) a.push('<a href="#' + c[d].name + '" onclick="nodeActive(\'' + c[d].id + "')\">" + c[d].name + "</a>");
+             0 == c.length && !b && a.push("<i>No results found.</i>");
++            if (10 < c.length) {
++                document.getElementById('list_results').style.height = "200px";
++            } else {
++                document.getElementById('list_results').style.height = "auto";
++            }
+             1 < a.length && this.results.html(a.join(""));
+            }
+         if(c.length!=1) this.results.show();
+diff -Naurp network/js/sigma/sigma.parseJson.js RefSeq84_Genus/js/sigma/sigma.parseJson.js
+--- network/js/sigma/sigma.parseJson.js	2018-06-01 15:48:56.892148023 +0200
++++ RefSeq84_Genus/js/sigma/sigma.parseJson.js	2018-06-01 15:46:32.061023560 +0200
+@@ -7,6 +7,7 @@ sigma.publicPrototype.parseJson = functi
+ 	jQuery.getJSON(jsonPath, function(data) {
+ 		for (i=0; i<data.nodes.length; i++){
+ 			var id=data.nodes[i].id;
++                        data.nodes[i].y=-data.nodes[i].y;
+ 			//window.NODE = data.nodes[i];//In the original, but not sure purpose
+ 			sigmaInstance.addNode(id,data.nodes[i]);
+ 		}
