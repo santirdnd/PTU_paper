@@ -1,8 +1,8 @@
 # pTU_paper
 
-This repository contains all scripts used to produce the results shown on the paper. Some of these scripts are just shell wrappers around other commands. They have been included as they document the exact params used for the pipeline. To install simply copy them to a folder and execute from there, just make sure that all dependencies are in your PATH. Dependecies are minimal and pretty standard. Perhaps the more exoteric is ani.rb, the Ruby script from [enveomics repository](https://github.com/lmrodriguezr/enveomics) used to calculate the ANI similarity between plasmid genomes. This pipeline has been tested on Ubuntu 16.04 LTS edition but it should be run on any actual Linux/MacOS system.
+This repository contains all scripts used to produce the results shown on the paper. Some of these scripts are just shell wrappers around other commands. They have been included as they document the exact params used for the pipeline. To install copy them to a folder and execute from there. Make sure that all dependencies are in your PATH. The list of external dependencies required are indicated below. The entire [enveomics](https://github.com/lmrodriguezr/enveomics) package is not required to reproduce the results shown in the paper. The only requirement from enveomics is ani.rb, a Ruby script for ANI calculation. This pipeline has been tested on Ubuntu 16.04 LTS edition. 
 
-### Dependencies
+### Dependencies:
 
 - External programs:
   - AcCNET v1.2
@@ -51,7 +51,7 @@ To reproduce the manuscript's results a number of scripts should be executed on 
 - __```generate_adjacency_matrices.py```__: Transform pairwise list of ANI similariry measures on the usual network adjacency matrix
 - __```tsne_adjacency.m```__: Apply t-SNE dimensionality reduction algorithm to the pTU network adjacency matrix
 
-##### PID: algorithm for automatic pTU classification
+##### pTId: topological algorithm for automatic pTU identification
 
 This algorithm has been implemented with the Matlab files ```setglobal.m```, ```divide.m```, ```escribe_componentes.m```, ```keephojas.m``` and ```dibuja.m```
 
@@ -78,6 +78,12 @@ To execute simply enter the following commands on Matlab Command Window:
 - __```summarize_pGroups_info.sh```__: Generate a basic description of pTUs composition
 - __```calculate_cluster_density.py```__: Calculate inter and intra-cluster density of pTU clusters
 - __```check_database_redundancy.py```__: Verify the percentage of plasmid duplication on pTU clusters
+
+### Expected output and execution time
+
+The expected output from this pipeline are the files defining the networks shown on the paper and the list of plasmids classified into different pTUs. The Gephi network files corresponding to the Plasmidome/ORFeome bipartite network (Figure 1), the full RefSeq84 plasmidome pTU network (Figures 3 and 6) and the Enterobacterales plasmidome subset (Figure 4) can be downloaded from the Supplementary Material attached to the paper. These files are, respectively, Supplementary File SF5, SF6, and SF7. Supplementary Table ST5 lists those plasmids automatically classified into different pTUs after applying pTId algorithm to the adjacency matrix of the RefSeq84 plasmidome network.
+
+The execution time needed to complete the full pipeline on a personal computer will be around a few weeks because of the cuadratic number of pairwise similarity comparisons. Moreover, the Plamidome/ORFeome bipartite AcCNET network is big enough to endanger the normal execution of Gephi on usual personal computers. ANI networks, being monopartite, are not affected.
 
 ### License
 
