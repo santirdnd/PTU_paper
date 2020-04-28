@@ -11,6 +11,7 @@ This repository contains all scripts used to produce the results shown on the pa
   - HMMER v3.1b2
   - PlasmidFinder v1.3
   - Gephi v0.9.2
+  - graph-tool v2.29
 
 - Other software and libraries:
   - Matlab 2019a
@@ -37,21 +38,16 @@ To reproduce the manuscript's results a number of scripts should be executed on 
 - __```assign_mob_classes.sh```__: Find plasmids relaxasome. Relaxase HMM profile database shared from [MOBscan](https://castillo.dicom.unican.es/mobscan_about/). This wrapper's argument is the same ```plasmid.lst``` file previously used
 - __```assign_pfinder_classes.sh```__: Type plasmid replicons with PlasmidFinder software and database
 
-##### Compile network topographies
+##### Compile network topologies
 
 - __```list_subgroups.sh```__: Generate different subsets of plasmids (Enterobacterales, Escherichia, etc). Some accession numbers are blacklisted as were found to not be real plasmids
-- __```append_pGroup_annotation.sh```__: This is a bit underhanded but we update here the plasmid metadata database with the the pTUs manually defined based on the output of next commands
+- __```append_pGroup_annotation.sh```__: This is a bit underhanded but we update here the plasmid metadata database with the the PTUs manually defined based on the output of next commands
 - __```accnet_RefSeq84.sh```__: Execute AcCNET to generate the plasmidome/ORFeome bipartite network. Use Gephi with the output of this script to produce the network layout
-- __```ani_RefSeq84.sh```__: This is the main step of our analysis as it produces the files later used with Gephi to layout the pTU network. This script combines two distinct functions:
+- __```ani_RefSeq84.sh```__: This is the main step of our analysis as it produces the files later used with Gephi to layout the PTU network. This script combines two distinct functions:
   - ___```calculate_ani_distances_p.py```___: Produce the list of ANI pairwise comparisons. This script is, as it is at the moment, very inefficient to execute on a personal computer and will take several weeks for completion
   - ___```genome_similarity_nerwork.py```___: Take the ANI comparisons and generate the file of edge's similarity and distance measures
 
-##### t-SNE network visualization
-
-- __```generate_adjacency_matrices.py```__: Transform pairwise list of ANI similariry measures on the usual network adjacency matrix
-- __```tsne_adjacency.m```__: Apply t-SNE dimensionality reduction algorithm to the pTU network adjacency matrix
-
-##### pTId: topological algorithm for automatic pTU identification
+##### PID: topological algorithm for automatic PTU identification
 
 This algorithm has been implemented with the Matlab files ```setglobal.m```, ```divide.m```, ```escribe_componentes.m```, ```keephojas.m``` and ```dibuja.m```
 
@@ -63,9 +59,17 @@ To execute simply enter the following commands on Matlab Command Window:
 >> keephojas;
 ```
 
+##### PTU validation with stochastical blockmodeling (SBM)
+
+- __```graph-tool_SBM_script.py```__: Script used to generate different SBM models
+- __```graph-tool_NSBM_script.py```__: Script used to generate different Hierarchical SBM models
+- __```simulation.py```__: Script used for sHSBM performance simulation
+- __```ptu_classifier.py```__: Script used for sHSBM PTU classification
+- __```ptu_comparison.py```__: Script used for sHSBM and PID PTU classifications
+
 ##### Host range visual representation
 
-- __```bipartite_kept_190823.sh```__: Generation of the bipartite network used for host range visualization. Use Gephi to convert on a monopartite network of hosts present per pTU
+- __```bipartite_kept_190823.sh```__: Generation of the bipartite network used for host range visualization. Use Gephi to convert on a monopartite network of hosts present per PTU
 
 ##### Checking the networks
 
@@ -75,15 +79,15 @@ To execute simply enter the following commands on Matlab Command Window:
 - __```pANI_prepare_data.sh```__: Compile a BLAST database of plasmid fragments sized for aligment fraction (AF) calcutation
 - __```pANI_Enterobacterales.sh```__: Generate pairwise list of aligment fraction (AF) results. Again, this step will take too long to execute on a personal computer
 
-- __```summarize_pGroups_info.sh```__: Generate a basic description of pTUs composition
-- __```calculate_cluster_density.py```__: Calculate inter and intra-cluster density of pTU clusters
-- __```check_database_redundancy.py```__: Verify the percentage of plasmid duplication on pTU clusters
+- __```summarize_pGroups_info.sh```__: Generate a basic description of PTU composition
+- __```calculate_cluster_density.py```__: Calculate inter and intra-cluster density of PTU clusters
+- __```check_database_redundancy.py```__: Verify the percentage of plasmid duplication on PTU clusters
 
 ### Expected output and execution time
 
-The expected output from this pipeline are the files defining the networks shown on the paper and the list of plasmids classified into different pTUs. The Gephi network files corresponding to the Plasmidome/ORFeome bipartite network (Figure 1), the full RefSeq84 plasmidome pTU network (Figures 3 and 6) and the Enterobacterales plasmidome subset (Figure 4) can be downloaded from the Supplementary Material attached to the paper. These files are, respectively, Supplementary File SF5, SF6, and SF7. Supplementary Table ST5 lists those plasmids automatically classified into different pTUs after applying pTId algorithm to the adjacency matrix of the RefSeq84 plasmidome network.
+The expected output from this pipeline are the files defining the networks shown on the paper and the list of plasmids classified into different PTUs. The Gephi network files corresponding to the Plasmidome/ORFeome bipartite network (Figure 1), the full RefSeq84 plasmidome PTU network (Figures 3 and 6) and the Enterobacterales plasmidome subset (Figure 4) can be downloaded from the Supplementary Material attached to the paper. These files are, respectively, Supplementary File SF4, SF1, and SF2. Supplementary Table ST5 lists those plasmids automatically classified into different PTUs after applying PID and sHSBM algorithm to the adjacency matrix of the RefSeq84 plasmidome network.
 
-The execution time needed to complete the full pipeline on a personal computer will be around a few weeks because of the cuadratic number of pairwise similarity comparisons. Moreover, the Plamidome/ORFeome bipartite AcCNET network is big enough to endanger the normal execution of Gephi on usual personal computers. ANI networks, being monopartite, are not affected.
+The execution time needed to complete the full pipeline on a personal computer will be around a few weeks because of the cuadratic number of pairwise ANI similarity comparisons. Moreover, the Plamidome/ORFeome bipartite AcCNET network is big enough to endanger the normal execution of Gephi on usual personal computers. ANI networks, being monopartite, are not yet limited by plasmid number.
 
 ### License
 
